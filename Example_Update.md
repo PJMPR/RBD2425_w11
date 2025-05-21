@@ -116,4 +116,79 @@ db.customers.updateOne(
 * [Operatory aktualizacji](https://www.mongodb.com/docs/manual/reference/operator/update/)
 * [Array Filters](https://www.mongodb.com/docs/manual/reference/command/update/#arrayfilters)
 
-> ✨ Przygotowano na potrzeby wykładu MongoDB – plik `mongo_insert_full.js` jako baza danych.
+
+---
+
+
+# 🔄 Przykłady użycia `updateMany()` w MongoDB
+
+Metoda `updateMany()` pozwala na modyfikację wielu dokumentów jednocześnie w kolekcji. Poniżej znajdziesz praktyczne przykłady operacji `updateMany()` opartych na kolekcjach `customers` i `products`.
+
+---
+
+## 📌 Przykład 1: Dezaktywacja produktów z małym stanem magazynowym
+
+```javascript
+db.products.updateMany(
+  { "inventory.quantity": { $lt: 10 } },
+  { $set: { active: false } }
+)
+```
+
+Dezaktywuje wszystkie produkty, których ilość w magazynie jest mniejsza niż 10.
+
+---
+
+## 📌 Przykład 2: Aktualizacja kraju klienta na nową nazwę
+
+```javascript
+db.customers.updateMany(
+  { "address.country": "France" },
+  { $set: { "address.country": "France (EU)" } }
+)
+```
+
+Aktualizuje pole `country` we wszystkich adresach klientów z "France" na "France (EU)".
+
+---
+
+## 📌 Przykład 3: Ustawienie flagi lojalnościowej dla klientów z więcej niż jedną transakcją
+
+```javascript
+db.customers.updateMany(
+  { "orders.1": { $exists: true } },
+  { $set: { loyal_customer: true } }
+)
+```
+
+Dodaje pole `loyal_customer: true` klientom, którzy mają więcej niż jedno zamówienie.
+
+---
+
+## 📌 Przykład 4: Resetowanie statusu zamówień anulowanych
+
+```javascript
+db.customers.updateMany(
+  { "orders.status": "cancelled" },
+  { $set: { "orders.$[elem].status": "pending" } },
+  { arrayFilters: [ { "elem.status": "cancelled" } ] }
+)
+```
+
+Zamienia `status` wszystkich anulowanych zamówień na `pending`, używając `arrayFilters`.
+
+---
+
+## 📌 Przykład 5: Dodanie informacji o strefie do klientów z Francji
+
+```javascript
+db.customers.updateMany(
+  { "address.country": "France (EU)" },
+  { $set: { "address.region": "Western Europe" } }
+)
+```
+
+Dodaje nowe pole `region` do adresu każdego klienta z Francji.
+
+---
+
